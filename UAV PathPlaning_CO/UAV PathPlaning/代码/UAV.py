@@ -96,7 +96,7 @@ class UAV():
             self.data_rate.append(0)
         #遍历环境中的终端用户，计算无人机与终端用户的距离，如果距离在传感器范围内，且没有其他无人机已经服务该用户终端，则将终端用户添加到tu_can列表中
         for tu in self.env.tus:
-            if tu.flag_done:
+            if tu.flag_done or not getattr(tu, 'active', True):
                 continue
             d = math.sqrt((self.x - tu.x) ** 2 + (self.y - tu.y) ** 2 + self.H ** 2) #无人机与服务节点的距离
 
@@ -342,12 +342,16 @@ class UAV():
         flag_tu = True
         for tu in self.tu_can:
             if tu.id > 0:
+                if not getattr(tu, 'active', True):
+                    continue
                 if tu.y <= self.y_tar:
                     flag_tu &= tu.flag_done #检查是否所有的TU都已完成
         for id in self.id_near_uav:
             if id >= 0:
                 for tu in self.env.uavs[id].tu_can:
                     if tu.id > 0:
+                        if not getattr(tu, 'active', True):
+                            continue
                         if tu.y <= self.y_tar:
                             flag_tu &= tu.flag_done  # 检查 adjacent UAVs 是否所有的TU都已完成
 
